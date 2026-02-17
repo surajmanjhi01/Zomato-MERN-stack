@@ -12,6 +12,16 @@ async function uploadImage(file, fileName) {
     })
     return result;  //return the URL of the uploaded file
 }
+
+
+async function uploadFile(file, fileName) {
+    const result=await imagekit.upload({
+        file:file, //required
+        fileName:fileName, //required
+    })
+    return result;  //return the URL of the uploaded file
+}
+
 module.exports={
     uploadFile
 }

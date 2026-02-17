@@ -1,10 +1,10 @@
 //create server
 const express = require('express');
-const cookierParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const authRoutes = require('./src/controllers/routes/auth.routes');
 const foodRoutes = require('./src/controllers/routes/food.routes');
 const app = express();
-app.use(cookierParser());
+app.use(cookieParser());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/food', foodRoutes);

@@ -1,10 +1,13 @@
-const app = require('./app');
-const connectDB = require('./src/db/db');
-const dotenv = require('dotenv');
+require("dotenv").config();   // Load environment variables first
 
-dotenv.config();
+const app = require("./app");
+const connectDB = require("./src/db/db");
+
 connectDB();
 
-app.listen(4000, () => {
-    console.log("Server is running on port 4000");
+const PORT = process.env.PORT || 4000;
+const BASE_URL = `http://localhost:${PORT}`;
+
+app.listen(PORT, () => {
+  console.log(`Server is running at ${BASE_URL}`);
 });
