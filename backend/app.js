@@ -9,7 +9,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/food', foodRoutes);
 app.get('/', (req, res) => {
-    res.send("heelo world");
+     res.send("hello world");
 });
 
 module.exports = app;
