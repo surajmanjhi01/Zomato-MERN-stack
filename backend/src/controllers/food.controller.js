@@ -4,8 +4,7 @@ const { v4:uuid}=require("uuid")
 
 
 async function createFood(req, res) {
-    console.log(req.foodPartner)
-    console.log(req.body);
+
 
     const fileUploadResult=await storageService.uploadFile(req.file.buffer,uuid());
     const foddItem=await foodmodel.create({
@@ -20,8 +19,15 @@ async function createFood(req, res) {
         food:foodItem
     })
 }
-
+async function getFoodItems(req,res){
+    const foodItems=await foodmodel.find({foodpartner:req.foodPartner._id});
+    res.status(200).json({
+        message:"Food items fetched successfully",
+        foodItems:foodItems
+    })
+}
 
 module.exports={
-    createFood
+    createFood,
+    getFoodItems
 }

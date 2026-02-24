@@ -33,6 +33,7 @@ async function authFoodPartnerMiddleware(req, res, next) {
 }
 
 async function authUserMiddleware(req, res, next) {
+    
 
     const token = req.cookies.token;
 

@@ -13,7 +13,10 @@ router.post('/',
     foodController.createFood);
 // Example: router.post('/create', foodController.createFood);
 /*Get/api/food/{protected}*/
-// router.get{"/"}
+ router.get("/",
+    authMiddleware.authFoodPartnerMiddleware,
+    foodController.getFoodItems
+ )
 //
 
 module.exports=router;

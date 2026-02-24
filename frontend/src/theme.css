@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f7f4ef;
+  --surface: #ffffff;
+  --surface-alt: #f0ece6;
+  --text: #151312;
+  --text-soft: #4f4a45;
+  --border: #e4ddd5;
+  --accent: #d94b3d;
+  --accent-soft: #f6d0c9;
+  --shadow: 0 20px 50px rgba(26, 22, 20, 0.1);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12100f;
+    --surface: #1c1917;
+    --surface-alt: #24201e;
+    --text: #f5f2ef;
+    --text-soft: #c5bdb4;
+    --border: #2f2a27;
+    --accent: #ff7a68;
+    --accent-soft: rgba(255, 122, 104, 0.18);
+    --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+}
