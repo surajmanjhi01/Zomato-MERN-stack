@@ -1,8 +1,33 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../App.css'
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const UserRegister = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const fullName = e.target.elements['user-name'].value;
+    const email = e.target.elements['user-email'].value;
+    const phoneNumber = e.target.elements['user-phone'].value;
+    const password = e.target.elements['user-password'].value;
+
+    try {
+      const response = await api.post('/api/auth/user/register', {
+        fullName,
+        email,
+        phoneNumber,
+        password
+      });
+      alert(response.data.message);
+      e.target.reset();
+      navigate('/user/login');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Registration failed');
+    }
+  }
   return (
     <section className="auth-page">
       <div className="auth-shell">
@@ -17,7 +42,7 @@ const UserRegister = () => {
             <p className="auth-subtitle">Order from your favorite restaurants in minutes.</p>
           </header>
 
-          <form className="auth-form">
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field-group">
               <label htmlFor="user-name">Full name</label>
               <input id="user-name" type="text" placeholder="Ava Johnson" />
@@ -35,9 +60,9 @@ const UserRegister = () => {
               <input id="user-password" type="password" placeholder="Create a strong password" />
             </div>
 
-            <button className="primary-btn" type="button">Create account</button>
+            <button className="primary-btn" type="submit">Create account</button>
             <p className="auth-meta">
-              Already have an account? <span className="auth-link">Sign in</span>
+              Already have an account? <Link className="auth-link" to="/user/login">Sign in</Link>
             </p>
           </form>
         </div>

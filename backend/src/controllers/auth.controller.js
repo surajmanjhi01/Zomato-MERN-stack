@@ -4,34 +4,49 @@ const foodPartnermodel=require('../models/foodpartner.model');
 const bcrypt=require('bcryptjs');
 
 async function registerUser(req,res){
-    const{fullName,email,password}=req.body;
+    try {
+        const{fullName,email,password,phoneNumber}=req.body;
 
-    const isUserAlreadyExist=await usermodel.findOne({email});
+        if(!fullName || !email || !password || !phoneNumber) {
+            return res.status(400).json({
+                message:"All fields are required"
+            });
+        }
 
- if(isUserAlreadyExist){
-    return res.status(400).json({
-        message:"user already exit"
+        const isUserAlreadyExist=await usermodel.findOne({email});
+
+     if(isUserAlreadyExist){
+        return res.status(400).json({
+            message:"user already exist"
+        })
+     }
+     const hashedPassword=await bcrypt.hash(password,10);
+
+     const user=await usermodel.create({
+        fullName,
+        email,
+        password: hashedPassword,
+        phoneNumber
     })
- }
- const hashedPassword=await bcrypt.hash(password,10);
-
- const user=await usermodel.create({
-    fullName,
-    email,
-    password: hashedPassword
-})
-const token=jwt.sign({
-    id:user._id,
-},process.env.JWT_SECRET)
-res.cookie("token",token)
-res.status(201).json({
-    message:"user registered successfully",
-    user:{
-        _id:user._id,
-        fullName:user.fullName,
-        email:user.email
+    const token=jwt.sign({
+        id:user._id,
+    },process.env.JWT_SECRET)
+    res.cookie("token",token)
+    res.status(201).json({
+        message:"user registered successfully",
+        user:{
+            _id:user._id,
+            fullName:user.fullName,
+            email:user.email
+        }
+    });
+    } catch(error) {
+        console.error("Registration error:", error);
+        res.status(500).json({
+            message:"Registration failed",
+            error: error.message
+        });
     }
-});
 }
 async function loginUser(req,res){
     const{email,password}=req.body;
@@ -61,7 +76,8 @@ async function loginUser(req,res){
         user:{
             _id:user._id,
             fullName:user.fullName,
-            email:user.email
+            email:user.email,
+          
         }
     });
 }
@@ -74,32 +90,48 @@ function logoutUser(req,res){
 }
 
 async function registerFoodPartner(req,res){
-    const{name,email,password}=req.body;
-    const isFoodPartnerAlreadyExist=await foodPartnermodel  .findOne({email});
-    if(isFoodPartnerAlreadyExist){  
-        return res.status(400).json({
-            message:"food partner already exist"
-        })
-    }
-    const hashedPassword=await bcrypt.hash(password,10);
-    const foodPartner=await foodPartnermodel.create({  
-        name,
-        email,
-        password:hashedPassword
-    });
-    const token=jwt.sign({
-        id:foodPartner._id,
-    },process.env.JWT_SECRET)
-    res.cookie("token",token)
-    res.status(201).json({
-        message:"food partner registered successfully",
-        foodPartner:{
-            _id:foodPartner._id,
-            name:foodPartner.name,
-            email:foodPartner.email
+    try {
+        const{name,email,password,RestaurantName,ContactNumber}=req.body;
+        
+        if(!name || !email || !password || !RestaurantName || !ContactNumber) {
+            return res.status(400).json({
+                message:"All fields are required"
+            });
         }
-    });
-   
+        
+        const isFoodPartnerAlreadyExist=await foodPartnermodel.findOne({email});
+        if(isFoodPartnerAlreadyExist){  
+            return res.status(400).json({
+                message:"food partner already exist"
+            })
+        }
+        const hashedPassword=await bcrypt.hash(password,10);
+        const foodPartner=await foodPartnermodel.create({  
+            name,
+            RestaurantName,
+            ContactNumber,
+            email,
+            password:hashedPassword,
+        });
+        const token=jwt.sign({
+            id:foodPartner._id,
+        },process.env.JWT_SECRET)
+        res.cookie("token",token)
+        res.status(201).json({
+            message:"food partner registered successfully",
+            foodPartner:{
+                _id:foodPartner._id,
+                name:foodPartner.name,
+                email:foodPartner.email
+            }
+        });
+    } catch(error) {
+        console.error("Food partner registration error:", error);
+        res.status(500).json({
+            message:"Registration failed",
+            error: error.message
+        });
+    }
 }
 
 async function loginFoodPartner(req,res){

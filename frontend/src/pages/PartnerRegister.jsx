@@ -1,8 +1,31 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../App.css'
+import api from '../services/api'
 
 const PartnerRegister = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const name = e.target.elements['partner-owner'].value;
+    const RestaurantName = e.target.elements['partner-name'].value;
+    const email = e.target.elements['partner-email'].value;
+    const ContactNumber = e.target.elements['partner-phone'].value;
+    const password = e.target.elements['partner-password']?.value || '';
+
+    try {
+      const response = await api.post('/api/auth/foodpartner/register', {
+        name,
+        RestaurantName,
+        email,
+        ContactNumber,
+        password
+      });
+      alert(response.data.message);
+      e.target.reset();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Registration failed');
+    }
+  }
   return (
     <section className="auth-page">
       <div className="auth-shell">
@@ -17,7 +40,7 @@ const PartnerRegister = () => {
             <p className="auth-subtitle">Start reaching more customers today.</p>
           </header>
 
-          <form className="auth-form">
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field-group">
               <label htmlFor="partner-name">Restaurant name</label>
               <input id="partner-name" type="text" placeholder="Urban Spice" />
@@ -34,10 +57,14 @@ const PartnerRegister = () => {
               <label htmlFor="partner-phone">Contact number</label>
               <input id="partner-phone" type="tel" placeholder="+91 90000 00000" />
             </div>
+            <div className="field-group">
+              <label htmlFor="partner-password">Password</label>
+              <input id="partner-password" type="password" placeholder="Create a strong password" />
+            </div>
 
-            <button className="primary-btn" type="button">Create partner account</button>
+            <button className="primary-btn" type="submit">Create partner account</button>
             <p className="auth-meta">
-              Already listed? <span className="auth-link">Sign in</span>
+              Already listed? <Link className="auth-link" to="/food-partner/login">Sign in</Link>
             </p>
           </form>
         </div>

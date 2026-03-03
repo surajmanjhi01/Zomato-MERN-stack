@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import UserRegister from '../pages/UserRegister'
 import UserLogin from '../pages/UserLogin'
 import PartnerRegister from '../pages/PartnerRegister'
@@ -9,10 +9,12 @@ const AppRoutes = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Navigate to="/user/login" replace />} />
         <Route path="/user/register" element={<UserRegister />} />
         <Route path="/user/login" element={<UserLogin />} />
         <Route path="/food-partner/register" element={<PartnerRegister />} />
         <Route path="/food-partner/login" element={<PartnerLogin />} />
+        {/* <Route path="*" element={<Navigate to="/user/login" replace />} /> */}
       </Routes>
     </Router>
   )

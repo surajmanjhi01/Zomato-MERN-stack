@@ -1,8 +1,25 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../App.css'
+import api from '../services/api'
 
 const UserLogin = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const email = e.target.elements['login-email'].value;
+    const password = e.target.elements['login-password'].value;
+
+    try {
+      const response = await api.post('/api/auth/user/login', {
+        email,
+        password
+      });
+      alert(response.data.message);
+      e.target.reset();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Login failed');
+    }
+  }
   return (
     <section className="auth-page">
       <div className="auth-shell">
@@ -17,7 +34,7 @@ const UserLogin = () => {
             <p className="auth-subtitle">Sign in to reorder your favorites.</p>
           </header>
 
-          <form className="auth-form">
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field-group">
               <label htmlFor="login-email">Email address</label>
               <input id="login-email" type="email" placeholder="ava@email.com" />
@@ -34,9 +51,9 @@ const UserLogin = () => {
               <span className="auth-link">Forgot password?</span>
             </div>
 
-            <button className="primary-btn" type="button">Sign in</button>
+            <button className="primary-btn" type="submit">Sign in</button>
             <p className="auth-meta">
-              New to Zomato? <span className="auth-link">Create an account</span>
+              New to Zomato? <Link className="auth-link" to="/user/register">Create an account</Link>
             </p>
           </form>
         </div>

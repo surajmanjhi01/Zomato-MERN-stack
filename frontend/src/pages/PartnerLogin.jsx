@@ -1,8 +1,25 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../App.css'
+import api from '../services/api'
 
 const PartnerLogin = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const email = e.target.elements['partner-login-email'].value;
+    const password = e.target.elements['partner-login-password'].value;
+
+    try {
+      const response = await api.post('/api/auth/foodpartner/login', {
+        email,
+        password
+      });
+      alert(response.data.message);
+      e.target.reset();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Login failed');
+    }
+  }
   return (
     <section className="auth-page">
       <div className="auth-shell">
@@ -17,7 +34,7 @@ const PartnerLogin = () => {
             <p className="auth-subtitle">Access your dashboard and live orders.</p>
           </header>
 
-          <form className="auth-form">
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="field-group">
               <label htmlFor="partner-login-email">Business email</label>
               <input id="partner-login-email" type="email" placeholder="hello@urbanspice.com" />
@@ -34,9 +51,9 @@ const PartnerLogin = () => {
               <span className="auth-link">Reset password</span>
             </div>
 
-            <button className="primary-btn" type="button">Sign in</button>
+            <button className="primary-btn" type="submit">Sign in</button>
             <p className="auth-meta">
-              New partner? <span className="auth-link">Register now</span>
+              New partner? <Link className="auth-link" to="/food-partner/register">Register now</Link>
             </p>
           </form>
         </div>
