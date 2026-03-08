@@ -17,6 +17,8 @@ router.post('/',
     authMiddleware.authFoodPartnerMiddleware,
     foodController.getFoodItems
  )
+// Get all food items {public}
+router.get("/all", foodController.getAllFoodItems);
 //
 
 module.exports=router;

@@ -6,7 +6,7 @@ const foodRoutes = require('./src/controllers/routes/food.routes');
 const cors=require('cors');
 const app = express();
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"http://localhost:5174",
     credentials:true,
 }));
 app.use(cookieParser());

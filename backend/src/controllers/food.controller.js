@@ -27,7 +27,23 @@ async function getFoodItems(req,res){
     })
 }
 
+async function getAllFoodItems(req,res){
+    try{
+        const foodItems=await foodmodel.find().populate('foodpartner');
+        res.status(200).json({
+            message:"All food items fetched successfully",
+            foodItems:foodItems
+        })
+    }catch(error){
+        res.status(500).json({
+            message:"Error fetching food items",
+            error:error.message
+        })
+    }
+}
+
 module.exports={
     createFood,
-    getFoodItems
+    getFoodItems,
+    getAllFoodItems
 }
