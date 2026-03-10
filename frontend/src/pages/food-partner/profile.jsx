@@ -14,7 +14,7 @@ const Profile = () => {
                 setProfile(response.data.foodPartner);
             })
             .catch((error) => {
-                console.error("Error fetching food partner profile:", error);
+                console.error("Error fetching food partner  profile:", error);
             });
     }, [id]);
 
