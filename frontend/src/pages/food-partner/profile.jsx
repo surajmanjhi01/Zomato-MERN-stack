@@ -6,15 +6,19 @@ import axios from "axios";
 const Profile = () => {
     const { id } = useParams();
     const [profile, setProfile] = useState(null);
-    const [videos, setVideos] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        setIsLoading(true);
         axios.get(`http://localhost:4000/api/food-partner/${id}`)
             .then((response) => {
                 setProfile(response.data.foodPartner);
             })
             .catch((error) => {
-                console.error("Error fetching food partner  profile:", error);
+                console.error("Error fetching food  partner  profile:", error);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     }, [id]);
 
@@ -23,16 +27,33 @@ const Profile = () => {
         title: `Video ${index + 1}`,
     }));
 
+    const displayVideos = Array.isArray(profile?.videos) && profile.videos.length > 0
+        ? profile.videos
+        : sampleVideos;
+
+    const initials = profile?.name
+        ? profile.name
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((word) => word[0].toUpperCase())
+            .join("")
+        : "FP";
+
     return (
         <main className="partner-profile-page">
             <section className="partner-profile-shell" aria-label="Food partner profile">
+                <div className="partner-cover" aria-hidden="true" />
+
                 <header className="partner-profile-header">
                     <div className="partner-identity-row">
-                        <div className="partner-avatar" aria-hidden="true" />
+                        <div className="partner-avatar" aria-hidden="true">{initials}</div>
 
                         <div className="partner-meta">
-                            <h1 className="partner-name">{profile?.name || 'Business Name'}</h1>
-                            <p className="partner-address">{profile?.address || 'Address'}</p>
+                            <p className="partner-chip">Food Partner</p>
+                            <h1 className="partner-name">{profile?.name || "Business Name"}</h1>
+                            <p className="partner-address">{profile?.address || "Address"}</p>
+                            {isLoading && <p className="partner-loading">Loading profile...</p>}
                         </div>
                     </div>
 
@@ -44,15 +65,26 @@ const Profile = () => {
 
                         <article className="partner-stat" role="listitem">
                             <p className="partner-stat-value">{profile?.customersServed || 0}</p>
-                            <p className="partner-stat-label">Customer Served</p>
+                            <p className="partner-stat-label">Customers Served</p>
+                        </article>
+
+                        <article className="partner-stat" role="listitem">
+                            <p className="partner-stat-value">{profile?.rating || "4.8"}</p>
+                            <p className="partner-stat-label">Rating</p>
                         </article>
                     </div>
                 </header>
 
+                <section className="partner-content-header" aria-label="Uploads heading">
+                    <h2 className="partner-content-title">Uploads</h2>
+                    <p className="partner-content-count">{displayVideos.length} videos</p>
+                </section>
+
                 <section className="partner-video-grid" aria-label="Uploaded videos">
-                    {sampleVideos.map((video) => (
+                    {displayVideos.map((video, index) => (
                         <article key={video.id} className="partner-video-tile">
-                            <span>{video.title}</span>
+                            <span className="partner-video-index">#{index + 1}</span>
+                            <span className="partner-video-title">{video.title || `Video ${index + 1}`}</span>
                         </article>
                     ))}
                 </section>
