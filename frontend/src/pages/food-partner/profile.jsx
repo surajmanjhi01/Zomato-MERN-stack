@@ -10,7 +10,7 @@ const Profile = () => {
 
     useEffect(() => {
         setIsLoading(true);
-        axios.get(`http://localhost:4000/api/food-partner/${id}`)
+        axios.get(`http://localhost:4000/api/food-partner/${id}`, { withCredentials: true })
             .then((response) => {
                 setProfile(response.data.foodPartner);
             })

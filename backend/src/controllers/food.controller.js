@@ -31,7 +31,7 @@ async function getAllFoodItems(req,res){
     try{
         const foodItems=await foodmodel.find().populate('foodpartner');
         res.status(200).json({
-            message:"All food items fetched successfully",
+            message:"All food items fetched  successfully",
             foodItems:foodItems
         })
     }catch(error){
