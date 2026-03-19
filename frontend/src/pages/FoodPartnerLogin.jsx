@@ -21,7 +21,7 @@ const FoodPartnerLogin = () => {
       const response = await axios.post('http://localhost:4000/api/auth/foodpartner/login', payload, {
         withCredentials: true,
       });
-      console.log('Food partner logged in successfully:', response.data);
+      console.log('Food partner logged  in successfully:', response.data);
       navigate('/create-food');
     } catch (error) {
       const backendMessage = error.response?.data?.message;
