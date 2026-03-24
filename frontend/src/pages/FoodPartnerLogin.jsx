@@ -20,7 +20,11 @@ const FoodPartnerLogin = () => {
     try {
       const response = await api.post('/api/auth/foodpartner/login', payload);
       console.log('Food partner logged  in successfully:', response.data);
-      navigate('/create-food');
+      const partnerId = response.data?.foodPartner?._id;
+      if (partnerId) {
+        localStorage.setItem('foodPartnerId', partnerId);
+      }
+      navigate('/food-partner/dashboard');
     } catch (error) {
       const backendMessage = error.response?.data?.message;
       const backendError = error.response?.data?.error;
