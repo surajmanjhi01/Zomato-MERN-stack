@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './FoodPartnerRegister.css';
-import axios from 'axios';
+import api from '../services/api';
 
 const FoodPartnerRegister = () => {
   const navigate = useNavigate();
@@ -24,9 +24,7 @@ const FoodPartnerRegister = () => {
     console.log('Submitting payload:', payload);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/auth/foodpartner/register', payload, {
-        withCredentials: true,
-      });
+      const response = await api.post('/api/auth/foodpartner/register', payload);
       console.log('Food partner registered successfully:', response.data);
       navigate('/food-partner/login');
     } catch (error) {

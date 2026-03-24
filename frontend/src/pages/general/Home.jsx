@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Home.css';
-import axios from 'axios';
+import api from '../../services/api';
 
 const DUMMY_VIDEO_ITEMS = [
     {
@@ -156,8 +156,8 @@ const Home = () => {
     // Autoplay behavior is handled inside ReelFeed
 
     useEffect(() => {
-        axios
-            .get('http://localhost:4000/api/food/all', { withCredentials: true })
+        api
+            .get('/api/food/all')
             .then((response) => {
                 console.log(response.data);
                 setVideos(response.data.foodItems || []);
@@ -172,11 +172,7 @@ const Home = () => {
     // Using local refs within ReelFeed; keeping map here for dependency parity if needed
     async function likeVideo(item) {
         try {
-            const response = await axios.post(
-                'http://localhost:4000/api/food/like',
-                { foodId: item._id },
-                { withCredentials: true }
-            );
+            const response = await api.post('/api/food/like', { foodId: item._id });
 
             if (response.data.like) {
                 setVideos((prev) =>
@@ -198,11 +194,7 @@ const Home = () => {
 
     async function saveVideo(item) {
         try {
-            const response = await axios.post(
-                'http://localhost:4000/api/food/save',
-                { foodId: item._id },
-                { withCredentials: true }
-            );
+            const response = await api.post('/api/food/save', { foodId: item._id });
 
             if (response.data.save) {
                 setVideos((prev) =>

@@ -3,6 +3,16 @@ const usermodel=require('../models/user.model');
 const foodPartnermodel=require('../models/foodpartner.model');
 const bcrypt=require('bcryptjs');
 
+function getCookieOptions() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    return {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+    };
+}
+
 async function registerUser(req,res){
     try {
         const{fullName,email,password,phoneNumber}=req.body;
@@ -31,7 +41,7 @@ async function registerUser(req,res){
     const token=jwt.sign({
         id:user._id,
     },process.env.JWT_SECRET)
-    res.cookie("token",token)
+    res.cookie("token",token,getCookieOptions())
     res.status(201).json({
         message:"user registered successfully",
         user:{
@@ -70,7 +80,7 @@ async function loginUser(req,res){
     const token=jwt.sign({
         id:user._id,
     },process.env.JWT_SECRET)
-    res.cookie("token",token)
+    res.cookie("token",token,getCookieOptions())
     res.status(200).json({
         message:"user logged in successfully",
         user:{
@@ -83,7 +93,7 @@ async function loginUser(req,res){
 }
 
 function logoutUser(req,res){
-    res.clearCookie("token");
+    res.clearCookie("token", getCookieOptions());
     res.status(200).json({
         message:"user logged out successfully"
     });
@@ -116,7 +126,7 @@ async function registerFoodPartner(req,res){
         const token=jwt.sign({
             id:foodPartner._id,
         },process.env.JWT_SECRET)
-        res.cookie("token",token)
+        res.cookie("token",token,getCookieOptions())
         res.status(201).json({
             message:"food partner registered successfully",
             foodPartner:{
@@ -151,7 +161,7 @@ async function loginFoodPartner(req,res){
     const token=jwt.sign({
         id:foodPartner._id,
     },process.env.JWT_SECRET)
-    res.cookie("token",token)
+    res.cookie("token",token,getCookieOptions())
     res.status(200).json({ 
         message:"food partner logged in successfully",
         foodPartner:{
@@ -162,7 +172,7 @@ async function loginFoodPartner(req,res){
     });
 }
 function logoutFoodPartner(req,res){
-    res.clearCookie("token");
+    res.clearCookie("token", getCookieOptions());
     res.status(200).json({
         message:"food partner logged out successfully"
     });

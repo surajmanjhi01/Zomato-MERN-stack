@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './UserRegister.css';
-import axios from 'axios';
+import api from '../services/api';
 import {useNavigate} from 'react-router-dom';
 
 const UserRegister = () => {
@@ -23,9 +23,7 @@ const UserRegister = () => {
         console.log('Submitting payload:', payload);
 
         try {
-          const response = await axios.post('http://localhost:4000/api/auth/user/register', payload, {
-            withCredentials: true,
-          });
+          const response = await api.post('/api/auth/user/register', payload);
           console.log('User registered successfully:', response.data);
             navigate('/user/login');
         } catch (error) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./profile.css";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 
 const Profile = () => {
     const { id } = useParams();
@@ -10,7 +10,7 @@ const Profile = () => {
 
     useEffect(() => {
         setIsLoading(true);
-        axios.get(`http://localhost:4000/api/food-partner/${id}`, { withCredentials: true })
+        api.get(`/api/food-partner/${id}`)
             .then((response) => {
                 setProfile(response.data.foodPartner);
             })
