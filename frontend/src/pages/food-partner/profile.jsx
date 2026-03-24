@@ -1,96 +1,104 @@
-import React, { useState, useEffect } from "react";
-import "./profile.css";
-import { useParams } from "react-router-dom";
-import api from "../../services/api";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import './profile.css';
+import api from '../../services/api';
 
 const Profile = () => {
-    const { id } = useParams();
-    const [profile, setProfile] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+  const [dashboard, setDashboard] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    useEffect(() => {
-        setIsLoading(true);
-        api.get(`/api/food-partner/${id}`)
-            .then((response) => {
-                setProfile(response.data.foodPartner);
-            })
-            .catch((error) => {
-                console.error("Error fetching food  partner  profile:", error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, [id]);
+  useEffect(() => {
+    setIsLoading(true);
+    api
+      .get('/api/food-partner/dashboard/me')
+      .then((response) => {
+        setDashboard(response.data.dashboard);
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || 'Failed to load dashboard');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
-    const sampleVideos = Array.from({ length: 9 }, (_, index) => ({
-        id: `video-${index + 1}`,
-        title: `Video ${index + 1}`,
-    }));
+  const profile = dashboard?.foodPartner;
+  const reels = dashboard?.reels || [];
+  const totalReels = dashboard?.stats?.totalReels || 0;
 
-    const displayVideos = Array.isArray(profile?.videos) && profile.videos.length > 0
-        ? profile.videos
-        : sampleVideos;
+  const initials = useMemo(() => {
+    if (!profile?.name) return 'FP';
+    return profile.name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0].toUpperCase())
+      .join('');
+  }, [profile?.name]);
 
-    const initials = profile?.name
-        ? profile.name
-            .split(" ")
-            .filter(Boolean)
-            .slice(0, 2)
-            .map((word) => word[0].toUpperCase())
-            .join("")
-        : "FP";
+  return (
+    <main className="partner-profile-page">
+      <section className="partner-profile-shell" aria-label="Food partner profile">
+        <div className="partner-cover" aria-hidden="true" />
 
-    return (
-        <main className="partner-profile-page">
-            <section className="partner-profile-shell" aria-label="Food partner profile">
-                <div className="partner-cover" aria-hidden="true" />
+        <header className="partner-profile-header">
+          <div className="partner-identity-row">
+            <div className="partner-avatar" aria-hidden="true">
+              {initials}
+            </div>
 
-                <header className="partner-profile-header">
-                    <div className="partner-identity-row">
-                        <div className="partner-avatar" aria-hidden="true">{initials}</div>
+            <div className="partner-meta">
+              <p className="partner-chip">Food Partner Dashboard</p>
+              <h1 className="partner-name">{profile?.name || 'Business Name'}</h1>
+              <p className="partner-address">{profile?.RestaurantName || 'Restaurant Name'}</p>
+              {isLoading && <p className="partner-loading">Loading profile...</p>}
+              {error && <p className="partner-loading">{error}</p>}
+            </div>
+          </div>
 
-                        <div className="partner-meta">
-                            <p className="partner-chip">Food Partner</p>
-                            <h1 className="partner-name">{profile?.name || "Business Name"}</h1>
-                            <p className="partner-address">{profile?.address || "Address"}</p>
-                            {isLoading && <p className="partner-loading">Loading profile...</p>}
-                        </div>
-                    </div>
+          <div className="partner-stats-row" role="list" aria-label="Business stats">
+            <article className="partner-stat" role="listitem">
+              <p className="partner-stat-value">{totalReels}</p>
+              <p className="partner-stat-label">Total Reels</p>
+            </article>
 
-                    <div className="partner-stats-row" role="list" aria-label="Business stats">
-                        <article className="partner-stat" role="listitem">
-                            <p className="partner-stat-value">{profile?.totalMeals || 0}</p>
-                            <p className="partner-stat-label">Total Meals</p>
-                        </article>
+            <article className="partner-stat" role="listitem">
+              <p className="partner-stat-value">{profile?.ContactNumber || '-'}</p>
+              <p className="partner-stat-label">Contact</p>
+            </article>
 
-                        <article className="partner-stat" role="listitem">
-                            <p className="partner-stat-value">{profile?.customersServed || 0}</p>
-                            <p className="partner-stat-label">Customers Served</p>
-                        </article>
+            <article className="partner-stat" role="listitem">
+              <p className="partner-stat-value">{profile?.email || '-'}</p>
+              <p className="partner-stat-label">Email</p>
+            </article>
+          </div>
+        </header>
 
-                        <article className="partner-stat" role="listitem">
-                            <p className="partner-stat-value">{profile?.rating || "4.8"}</p>
-                            <p className="partner-stat-label">Rating</p>
-                        </article>
-                    </div>
-                </header>
+        <section className="partner-content-header" aria-label="Uploads heading">
+          <h2 className="partner-content-title">Uploaded Reels</h2>
+          <p className="partner-content-count">{reels.length} videos</p>
+        </section>
 
-                <section className="partner-content-header" aria-label="Uploads heading">
-                    <h2 className="partner-content-title">Uploads</h2>
-                    <p className="partner-content-count">{displayVideos.length} videos</p>
-                </section>
+        {!reels.length && !isLoading && (
+          <section className="partner-empty-state">
+            <p>No reels uploaded yet.</p>
+            <Link to="/create-food">Upload your first reel</Link>
+          </section>
+        )}
 
-                <section className="partner-video-grid" aria-label="Uploaded videos">
-                    {displayVideos.map((video, index) => (
-                        <article key={video.id} className="partner-video-tile">
-                            <span className="partner-video-index">#{index + 1}</span>
-                            <span className="partner-video-title">{video.title || `Video ${index + 1}`}</span>
-                        </article>
-                    ))}
-                </section>
-            </section>
-        </main>
-    );
+        <section className="partner-video-grid" aria-label="Uploaded videos">
+          {reels.map((video, index) => (
+            <article key={video._id} className="partner-video-tile">
+              <video className="partner-video-player" src={video.video} controls playsInline preload="metadata" />
+              <span className="partner-video-index">#{index + 1}</span>
+              <span className="partner-video-title">{video.name || `Video ${index + 1}`}</span>
+            </article>
+          ))}
+        </section>
+      </section>
+    </main>
+  );
 };
 
 export default Profile;

@@ -1,0 +1,62 @@
+.create-food-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  padding: 1.25rem;
+}
+
+.create-food-card {
+  width: min(100%, 520px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
+}
+
+.create-food-form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.create-food-form input,
+.create-food-form textarea,
+.create-food-form button,
+.create-food-actions button {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  padding: 0.7rem;
+  font: inherit;
+}
+
+.create-food-form button,
+.create-food-actions button {
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.create-food-form button:disabled {
+  opacity: 0.7;
+}
+
+.create-food-actions {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.create-food-actions a {
+  text-align: center;
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.create-food-message {
+  margin-top: 0.8rem;
+  color: var(--text-soft);
+}
