@@ -20,5 +20,10 @@ router.post('/',
 // Get all food items {public}
 router.get("/all", foodController.getAllFoodItems);
 //
+router.delete(
+    '/:id',
+    authMiddleware.authFoodPartnerMiddleware,
+    foodController.deleteFoodItem
+);
 
 module.exports=router;

@@ -54,8 +54,40 @@ async function getAllFoodItems(req, res) {
     }
 }
 
+async function deleteFoodItem(req, res) {
+    try {
+        const foodId = req.params.id;
+        const foodItem = await foodmodel.findById(foodId);
+
+        if (!foodItem) {
+            return res.status(404).json({
+                message: 'Food reel not found',
+            });
+        }
+
+        if (String(foodItem.foodpartner) !== String(req.foodPartner._id)) {
+            return res.status(403).json({
+                message: 'You can only delete your own reels',
+            });
+        }
+
+        await foodmodel.findByIdAndDelete(foodId);
+
+        return res.status(200).json({
+            message: 'Food reel deleted successfully',
+            deletedId: foodId,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Failed to delete food reel',
+            error: error.message,
+        });
+    }
+}
+
 module.exports = {
     createFood,
     getFoodItems,
     getAllFoodItems,
+    deleteFoodItem,
 };
