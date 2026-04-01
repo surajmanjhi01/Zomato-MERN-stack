@@ -7,18 +7,13 @@ const foodPartnerRoutes = require('./src/controllers/routes/food-partner.routes'
 const cors=require('cors');
 const app = express();
 
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+// const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
+//     .split(',')
+//     .map((origin) => origin.trim())
+//     .filter(Boolean);
 
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow non-browser requests and same-origin requests with no Origin header.
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        return callback(new Error('Not allowed by CORS'));
-    },
+    origin: process.env.CORS_ORIGINS,
     credentials:true,
 }));
 app.use(cookieParser());
