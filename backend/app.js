@@ -6,15 +6,22 @@ const foodRoutes = require('./src/controllers/routes/food.routes');
 const foodPartnerRoutes = require('./src/controllers/routes/food-partner.routes');
 const cors=require('cors');
 const app = express();
+dotenv = require('dotenv');
+dotenv.config();
 
-// const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
-//     .split(',')
-//     .map((origin) => origin.trim())
-//     .filter(Boolean);
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
 
 app.use(cors({
-    origin: process.env.CORS_ORIGINS,
-    credentials:true,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const normalizedOrigin = origin.replace(/\/$/, '');
+        if (allowedOrigins.includes(normalizedOrigin)) return callback(null, true);
+        return callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
+    credentials: true,
 }));
 app.use(cookieParser());
 app.use(express.json());
