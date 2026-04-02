@@ -222,28 +222,22 @@ const Home = () => {
             {!isAuthenticated ? (
                 <header className="home-top-nav" aria-label="Main navigation">
                     <Link to="/" className="home-brand">
-                        Zomato Reels
+                        Food Reel
                     </Link>
 
                     <nav className="home-auth-nav" aria-label="Authentication links">
                         <Link to="/user/login" className="home-nav-link">
                             User Login
                         </Link>
-                        <Link to="/user/register" className="home-nav-link">
-                            User Signup
-                        </Link>
                         <Link to="/food-partner/login" className="home-nav-link">
                             Partner Login
-                        </Link>
-                        <Link to="/food-partner/register" className="home-nav-link">
-                            Partner Signup
                         </Link>
                     </nav>
                 </header>
             ) : (
                 <header className="home-session-bar" aria-label="Session actions">
                     <Link to="/" className="home-brand">
-                        Zomato Reels
+                        Food Reel
                     </Link>
 
                     <div className="home-session-actions">
