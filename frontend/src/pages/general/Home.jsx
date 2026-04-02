@@ -125,7 +125,6 @@ const ReelFeed = ({ items, onLike, emptyMessage }) => {
                         className="reel-video"
                         src={getVideoSrc(item)}
                         autoPlay
-                        muted
                         loop
                         playsInline
                         controls
