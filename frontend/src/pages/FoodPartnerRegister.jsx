@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './FoodPartnerRegister.css';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 const FoodPartnerRegister = () => {
   const navigate = useNavigate();
@@ -22,10 +23,12 @@ const FoodPartnerRegister = () => {
     };
 
     console.log('Submitting payload:', payload);
+    const loadingToast = toast.loading('Signing up...');
 
     try {
       const response = await api.post('/api/auth/foodpartner/register', payload);
       console.log('Food partner registered successfully:', response.data);
+      toast.success('Signed up successfully.', { id: loadingToast });
       navigate('/food-partner/login');
     } catch (error) {
       const backendMessage = error.response?.data?.message;
@@ -37,6 +40,7 @@ const FoodPartnerRegister = () => {
         message: backendMessage || error.message,
         error: backendError,
       });
+      toast.error(backendMessage || 'Signup failed.', { id: loadingToast });
     }
   };
 
@@ -45,7 +49,7 @@ const FoodPartnerRegister = () => {
       <div className="auth-card">
         <div className="auth-header">
           <h1 className="auth-title">Partner With Us</h1>
-          <p className="auth-subtitle">Register your restaurant and start serving</p>
+          <p className="auth-subtitle">Register your restaurant and start uploading</p>
         </div>
 
         <form className="auth-form" onSubmit={handlesubmit}>

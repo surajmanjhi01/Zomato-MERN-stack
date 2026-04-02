@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 const DUMMY_VIDEO_ITEMS = [
     {
@@ -53,7 +55,7 @@ const DUMMY_VIDEO_ITEMS = [
     },
 ];
 
-const ReelFeed = ({ items, onLike, onSave, emptyMessage }) => {
+const ReelFeed = ({ items, onLike, emptyMessage }) => {
     const videoRefs = useRef([]);
 
     const getVideoSrc = (item) => {
@@ -136,14 +138,6 @@ const ReelFeed = ({ items, onLike, onSave, emptyMessage }) => {
                         <button type="button" className="reel-visit-btn" onClick={() => onLike(item)}>
                             Like ({item.likeCount || 0})
                         </button>
-                        <button
-                            type="button"
-                            className="reel-visit-btn"
-                            onClick={() => onSave(item)}
-                            style={{ marginLeft: '0.5rem' }}
-                        >
-                            Save ({item.savesCount || 0})
-                        </button>
                     </div>
                 </section>
             ))}
@@ -153,9 +147,17 @@ const ReelFeed = ({ items, onLike, onSave, emptyMessage }) => {
 
 const Home = () => {
     const [videos, setVideos] = useState([]);
-    // Autoplay behavior is handled inside ReelFeed
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
+        const syncAuthState = () => {
+            setIsAuthenticated(Boolean(localStorage.getItem('authRole')));
+        };
+
+        syncAuthState();
+        window.addEventListener('storage', syncAuthState);
+
         api
             .get('/api/food/all')
             .then((response) => {
@@ -165,11 +167,14 @@ const Home = () => {
             .catch(() => {
                 setVideos([]);
             });
+
+        return () => {
+            window.removeEventListener('storage', syncAuthState);
+        };
     }, []);
 
     const feedItems = videos.length ? videos : DUMMY_VIDEO_ITEMS;
 
-    // Using local refs within ReelFeed; keeping map here for dependency parity if needed
     async function likeVideo(item) {
         try {
             const response = await api.post('/api/food/like', { foodId: item._id });
@@ -192,35 +197,75 @@ const Home = () => {
         }
     }
 
-    async function saveVideo(item) {
-        try {
-            const response = await api.post('/api/food/save', { foodId: item._id });
+    async function handleLogout() {
+        const authRole = localStorage.getItem('authRole');
+        const logoutPath = authRole === 'food-partner' ? '/api/auth/foodpartner/logout' : '/api/auth/user/logout';
+        const loadingToast = toast.loading('Signing out...');
 
-            if (response.data.save) {
-                setVideos((prev) =>
-                    prev.map((v) =>
-                        v._id === item._id ? { ...v, savesCount: (v.savesCount || 0) + 1 } : v
-                    )
-                );
-            } else {
-                setVideos((prev) =>
-                    prev.map((v) =>
-                        v._id === item._id ? { ...v, savesCount: Math.max((v.savesCount || 0) - 1, 0) } : v
-                    )
-                );
-            }
+        try {
+            await api.get(logoutPath);
         } catch {
-            // noop: endpoint is optional in current backend
+            // Even if the backend call fails, clear the client session.
+        } finally {
+            localStorage.removeItem('authRole');
+            localStorage.removeItem('authUserId');
+            localStorage.removeItem('authFoodPartnerId');
+            localStorage.removeItem('foodPartnerId');
+            setIsAuthenticated(false);
+            toast.success('Signed out successfully.', { id: loadingToast });
+            navigate('/');
         }
     }
 
     return (
-        <ReelFeed
-            items={feedItems}
-            onLike={likeVideo}
-            onSave={saveVideo}
-            emptyMessage="No videos available. Showing sample reels for now."
-        />
+        <div className="home-page">
+            {!isAuthenticated ? (
+                <header className="home-top-nav" aria-label="Main navigation">
+                    <Link to="/" className="home-brand">
+                        Zomato Reels
+                    </Link>
+
+                    <nav className="home-auth-nav" aria-label="Authentication links">
+                        <Link to="/user/login" className="home-nav-link">
+                            User Login
+                        </Link>
+                        <Link to="/user/register" className="home-nav-link">
+                            User Signup
+                        </Link>
+                        <Link to="/food-partner/login" className="home-nav-link">
+                            Partner Login
+                        </Link>
+                        <Link to="/food-partner/register" className="home-nav-link">
+                            Partner Signup
+                        </Link>
+                    </nav>
+                </header>
+            ) : (
+                <header className="home-session-bar" aria-label="Session actions">
+                    <Link to="/" className="home-brand">
+                        Zomato Reels
+                    </Link>
+
+                    <div className="home-session-actions">
+                        {localStorage.getItem('authRole') === 'food-partner' && (
+                            <Link to="/create-food" className="home-upload-btn">
+                                Upload Food Reel
+                            </Link>
+                        )}
+
+                        <button type="button" className="home-logout-btn" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                </header>
+            )}
+
+            <ReelFeed
+                items={feedItems}
+                onLike={likeVideo}
+                emptyMessage="No videos available. Showing sample reels for now."
+            />
+        </div>
     );
 };
 

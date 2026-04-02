@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './UserRegister.css';
 import api from '../services/api';
 import {useNavigate} from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const UserRegister = () => {
     const navigate = useNavigate();
@@ -21,10 +22,12 @@ const UserRegister = () => {
         };
 
         console.log('Submitting payload:', payload);
+        const loadingToast = toast.loading('Signing up...');
 
         try {
           const response = await api.post('/api/auth/user/register', payload);
           console.log('User registered successfully:', response.data);
+          toast.success('Signed up successfully.', { id: loadingToast });
             navigate('/user/login');
         } catch (error) {
           const backendMessage = error.response?.data?.message;
@@ -36,6 +39,7 @@ const UserRegister = () => {
             message: backendMessage || error.message,
             error: backendError,
           });
+          toast.error(backendMessage || 'Signup failed.', { id: loadingToast });
         }
     };
 

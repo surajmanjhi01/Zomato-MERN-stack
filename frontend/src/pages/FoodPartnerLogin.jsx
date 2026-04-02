@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './FoodPartnerLogin.css';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 const FoodPartnerLogin = () => {
   const navigate = useNavigate();
@@ -16,14 +17,18 @@ const FoodPartnerLogin = () => {
     };
 
     console.log('Submitting payload:', payload);
+    const loadingToast = toast.loading('Logging in...');
 
     try {
       const response = await api.post('/api/auth/foodpartner/login', payload);
       console.log('Food partner logged  in successfully:', response.data);
       const partnerId = response.data?.foodPartner?._id;
       if (partnerId) {
+        localStorage.setItem('authRole', 'food-partner');
         localStorage.setItem('foodPartnerId', partnerId);
+        localStorage.setItem('authFoodPartnerId', partnerId);
       }
+      toast.success('Logged in successfully.', { id: loadingToast });
       navigate('/food-partner/dashboard');
     } catch (error) {
       const backendMessage = error.response?.data?.message;
@@ -35,6 +40,7 @@ const FoodPartnerLogin = () => {
         message: backendMessage || error.message,
         error: backendError,
       });
+      toast.error(backendMessage || 'Login failed.', { id: loadingToast });
     }
   };
 

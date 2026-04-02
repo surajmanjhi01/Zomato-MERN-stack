@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './profile.css';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,6 +35,8 @@ const Profile = () => {
   const profile = dashboard?.foodPartner;
   const reels = dashboard?.reels || [];
   const totalReels = dashboard?.stats?.totalReels || 0;
+  const restaurantName = profile?.RestaurantName || 'Restaurant Name';
+  const ownerName = profile?.name || 'Owner Name';
 
   const initials = useMemo(() => {
     if (!profile?.name) return 'FP';
@@ -127,6 +131,23 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    const loadingToast = toast.loading('Signing out...');
+
+    try {
+      await api.get('/api/auth/foodpartner/logout');
+    } catch {
+      // Ignore backend logout failures and clear client state anyway.
+    } finally {
+      localStorage.removeItem('authRole');
+      localStorage.removeItem('authUserId');
+      localStorage.removeItem('authFoodPartnerId');
+      localStorage.removeItem('foodPartnerId');
+      toast.success('Signed out successfully.', { id: loadingToast });
+      navigate('/');
+    }
+  };
+
   return (
     <main className="partner-profile-page">
       <section className="partner-profile-shell" aria-label="Food partner profile">
@@ -141,8 +162,8 @@ const Profile = () => {
 
               <div className="partner-meta">
                 <p className="partner-chip">Food Partner Dashboard</p>
-                <h1 className="partner-name">{profile?.name || 'Business Name'}</h1>
-                <p className="partner-address">{profile?.RestaurantName || 'Restaurant Name'}</p>
+                <h1 className="partner-name" title={restaurantName}>{restaurantName}</h1>
+                <p className="partner-owner">Owner: {ownerName}</p>
                 {isLoading && <p className="partner-loading">Loading profile...</p>}
                 {error && <p className="partner-loading">{error}</p>}
               </div>
@@ -155,6 +176,10 @@ const Profile = () => {
                 onClick={() => setShowUploader((prev) => !prev)}
               >
                 {showUploader ? 'Close Uploader' : 'Upload Food Reel'}
+              </button>
+
+              <button type="button" className="partner-logout-btn" onClick={handleLogout}>
+                Logout
               </button>
 
               <Link to="/home" className="partner-feed-link">

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './UserLogin.css';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 const UserLogin = () => {
   const navigate = useNavigate();
@@ -16,10 +17,17 @@ const UserLogin = () => {
     };
 
     console.log('Submitting payload:', payload);
+    const loadingToast = toast.loading('Logging in...');
 
     try {
       const response = await api.post('/api/auth/user/login', payload);
       console.log('User logged in successfully:', response.data);
+      const userId = response.data?.user?._id;
+      if (userId) {
+        localStorage.setItem('authRole', 'user');
+        localStorage.setItem('authUserId', userId);
+      }
+      toast.success('Logged in successfully.', { id: loadingToast });
       navigate('/home');
     } catch (error) {
       const backendMessage = error.response?.data?.message;
@@ -31,6 +39,7 @@ const UserLogin = () => {
         message: backendMessage || error.message,
         error: backendError,
       });
+      toast.error(backendMessage || 'Login failed.', { id: loadingToast });
     }
   };
 
@@ -39,7 +48,7 @@ const UserLogin = () => {
       <div className="auth-card">
         <div className="auth-header">
           <h1 className="auth-title">Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to continue ordering</p>
+          <p className="auth-subtitle">Sign in to continue watching</p>
         </div>
 
         <form className="auth-form" onSubmit={handlesubmit}>
