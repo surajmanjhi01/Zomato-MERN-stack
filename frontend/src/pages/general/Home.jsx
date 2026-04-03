@@ -210,6 +210,7 @@ const Home = () => {
             localStorage.removeItem('authUserId');
             localStorage.removeItem('authFoodPartnerId');
             localStorage.removeItem('foodPartnerId');
+            localStorage.removeItem('authToken');
             setIsAuthenticated(false);
             toast.success('Signed out successfully.', { id: loadingToast });
             navigate('/');

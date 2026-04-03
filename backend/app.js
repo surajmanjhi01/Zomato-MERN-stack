@@ -9,7 +9,10 @@ const app = express();
 dotenv = require('dotenv');
 dotenv.config();
 
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+const allowedOrigins = (
+    process.env.CORS_ORIGIN ||
+    'http://localhost:5173,http://localhost,capacitor://localhost,ionic://localhost'
+)
     .split(',')
     .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean);

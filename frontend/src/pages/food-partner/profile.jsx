@@ -143,6 +143,7 @@ const Profile = () => {
       localStorage.removeItem('authUserId');
       localStorage.removeItem('authFoodPartnerId');
       localStorage.removeItem('foodPartnerId');
+      localStorage.removeItem('authToken');
       toast.success('Signed out successfully.', { id: loadingToast });
       navigate('/');
     }

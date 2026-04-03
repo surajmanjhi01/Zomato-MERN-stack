@@ -49,6 +49,7 @@ async function registerUser(req,res){
     res.clearCookie(LEGACY_TOKEN_COOKIE, getCookieOptions())
     res.status(201).json({
         message:"user registered successfully",
+        token,
         user:{
             _id:user._id,
             fullName:user.fullName,
@@ -89,6 +90,7 @@ async function loginUser(req,res){
     res.clearCookie(LEGACY_TOKEN_COOKIE, getCookieOptions())
     res.status(200).json({
         message:"user logged in successfully",
+        token,
         user:{
             _id:user._id,
             fullName:user.fullName,
@@ -137,6 +139,7 @@ async function registerFoodPartner(req,res){
         res.clearCookie(LEGACY_TOKEN_COOKIE, getCookieOptions())
         res.status(201).json({
             message:"food partner registered successfully",
+            token,
             foodPartner:{
                 _id:foodPartner._id,
                 name:foodPartner.name,
@@ -173,6 +176,7 @@ async function loginFoodPartner(req,res){
     res.clearCookie(LEGACY_TOKEN_COOKIE, getCookieOptions())
     res.status(200).json({ 
         message:"food partner logged in successfully",
+        token,
         foodPartner:{
             _id:foodPartner._id,
             name:foodPartner.name,

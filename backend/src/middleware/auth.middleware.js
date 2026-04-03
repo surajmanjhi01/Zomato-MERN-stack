@@ -6,10 +6,29 @@ const USER_TOKEN_COOKIE = 'user_token';
 const FOOD_PARTNER_TOKEN_COOKIE = 'food_partner_token';
 const LEGACY_TOKEN_COOKIE = 'token';
 
+function getTokenFromRequest(req, primaryCookieName) {
+    const cookieToken = req.cookies[primaryCookieName] || req.cookies[LEGACY_TOKEN_COOKIE];
+    if (cookieToken) {
+        return cookieToken;
+    }
+
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (!authHeader || typeof authHeader !== 'string') {
+        return '';
+    }
+
+    const [scheme, token] = authHeader.split(' ');
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+        return '';
+    }
+
+    return token;
+}
+
 
 async function authFoodPartnerMiddleware(req, res, next) {
 
-    const token = req.cookies[FOOD_PARTNER_TOKEN_COOKIE] || req.cookies[LEGACY_TOKEN_COOKIE];
+    const token = getTokenFromRequest(req, FOOD_PARTNER_TOKEN_COOKIE);
 
     if (!token) {
         return res.status(401).json({
@@ -45,7 +64,7 @@ async function authFoodPartnerMiddleware(req, res, next) {
 async function authUserMiddleware(req, res, next) {
     
 
-    const token = req.cookies[USER_TOKEN_COOKIE] || req.cookies[LEGACY_TOKEN_COOKIE];
+    const token = getTokenFromRequest(req, USER_TOKEN_COOKIE);
 
     if (!token) {
         return res.status(401).json({

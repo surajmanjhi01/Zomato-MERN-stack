@@ -23,10 +23,14 @@ const FoodPartnerLogin = () => {
       const response = await api.post('/api/auth/foodpartner/login', payload);
       console.log('Food partner logged  in successfully:', response.data);
       const partnerId = response.data?.foodPartner?._id;
+      const token = response.data?.token;
       if (partnerId) {
         localStorage.setItem('authRole', 'food-partner');
         localStorage.setItem('foodPartnerId', partnerId);
         localStorage.setItem('authFoodPartnerId', partnerId);
+      }
+      if (token) {
+        localStorage.setItem('authToken', token);
       }
       toast.success('Logged in successfully.', { id: loadingToast });
       navigate('/food-partner/dashboard');

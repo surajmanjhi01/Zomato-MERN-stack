@@ -23,9 +23,13 @@ const UserLogin = () => {
       const response = await api.post('/api/auth/user/login', payload);
       console.log('User logged in successfully:', response.data);
       const userId = response.data?.user?._id;
+      const token = response.data?.token;
       if (userId) {
         localStorage.setItem('authRole', 'user');
         localStorage.setItem('authUserId', userId);
+      }
+      if (token) {
+        localStorage.setItem('authToken', token);
       }
       toast.success('Logged in successfully.', { id: loadingToast });
       navigate('/home');
