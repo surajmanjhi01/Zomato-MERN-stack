@@ -284,6 +284,10 @@
   padding: 0.62rem 0.75rem;
   font: inherit;
   color: #2b201a;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .partner-uploader-form input:focus,
@@ -553,6 +557,7 @@
 
   .partner-header-actions {
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .partner-upload-btn {
@@ -561,6 +566,11 @@
   }
 
   .partner-logout-btn {
+    width: 100%;
+    border-radius: 14px;
+  }
+
+  .partner-feed-link {
     width: 100%;
     border-radius: 14px;
   }
@@ -589,6 +599,47 @@
 
   .partner-video-grid {
     padding: 0 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 415px) {
+  .partner-profile-header {
+    padding: 0 0.72rem 0.95rem;
+  }
+
+  .partner-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .partner-upload-btn,
+  .partner-logout-btn,
+  .partner-feed-link {
+    flex: initial;
+    width: 100%;
+  }
+
+  .partner-uploader {
+    margin: 0 0.72rem 0.45rem;
+    padding: 0.72rem;
+  }
+
+  .partner-uploader-form {
+    gap: 0.52rem;
+  }
+
+  .partner-uploader-form input,
+  .partner-uploader-form textarea {
+    font-size: 0.95rem;
+  }
+
+  .partner-submit-btn {
+    width: 100%;
+  }
+
+  .partner-video-grid {
+    padding: 0 0.72rem 0.95rem;
   }
 }
 
