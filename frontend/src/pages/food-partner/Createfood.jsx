@@ -28,11 +28,9 @@ const Createfood = () => {
     setMessage('');
 
     try {
-      await api.post('/api/food', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // Don't explicitly set Content-Type - let axios handle it automatically
+      // This ensures the Authorization header from the interceptor is preserved
+      await api.post('/api/food', formData);
 
       setMessage('Reel uploaded successfully.');
       setName('');
@@ -40,7 +38,13 @@ const Createfood = () => {
       setVideo(null);
       event.target.reset();
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to upload reel.');
+      if (error.response?.status === 401) {
+        setMessage('Session expired. Please login again.');
+        navigate('/food-partner-login');
+      } else {
+        setMessage(error.response?.data?.message || 'Failed to upload reel. Please try again.');
+      }
+      console.error('Upload error:', error);
     } finally {
       setIsSubmitting(false);
     }

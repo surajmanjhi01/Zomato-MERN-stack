@@ -13,6 +13,7 @@ const baseURL = configuredBaseUrl && (!isProduction || !isLocalhostUrl)
 const api = axios.create({
   baseURL,
   withCredentials: true,
+  timeout: 300000, // 5 minutes timeout for large file uploads
 });
 
 api.interceptors.request.use((config) => {
