@@ -37,6 +37,11 @@ const Createfood = () => {
       setDescription('');
       setVideo(null);
       event.target.reset();
+      
+      // Redirect to home after 1.5 seconds to show the success message
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
     } catch (error) {
       if (error.response?.status === 401) {
         setMessage('Session expired. Please login again.');

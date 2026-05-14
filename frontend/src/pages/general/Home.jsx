@@ -57,6 +57,7 @@ const DUMMY_VIDEO_ITEMS = [
 
 const ReelFeed = ({ items, onLike, emptyMessage }) => {
     const videoRefs = useRef([]);
+    const [failedVideos, setFailedVideos] = useState({});
 
     const getVideoSrc = (item) => {
         const raw = item?.video || item?.src || '';
@@ -65,6 +66,11 @@ const ReelFeed = ({ items, onLike, emptyMessage }) => {
             return raw;
         }
         return `/${raw}`;
+    };
+
+    const handleVideoError = (index) => {
+        setFailedVideos(prev => ({ ...prev, [index]: true }));
+        console.warn(`Video at index ${index} failed to load`);
     };
 
     useEffect(() => {
@@ -77,7 +83,9 @@ const ReelFeed = ({ items, onLike, emptyMessage }) => {
                     const video = entry.target;
                     if (!(video instanceof HTMLVideoElement)) return;
 
-                    if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                        // Ensure video can load on mobile
+                        video.load();
                         const playPromise = video.play();
                         if (playPromise && typeof playPromise.catch === 'function') {
                             playPromise.catch(() => {
@@ -89,7 +97,7 @@ const ReelFeed = ({ items, onLike, emptyMessage }) => {
                     }
                 });
             },
-            { threshold: [0.6] }
+            { threshold: [0.5] }
         );
 
         videoRefs.current.forEach((video) => {
@@ -114,9 +122,25 @@ const ReelFeed = ({ items, onLike, emptyMessage }) => {
         );
     }
 
+    // Filter out failed videos and show available ones
+    const validItems = items.filter((_, idx) => !failedVideos[idx]);
+    
+    if (!validItems.length) {
+        return (
+            <main className="reels-feed" aria-label="Food reels feed">
+                <section className="reel-slide">
+                    <div className="reel-overlay">
+                        <p className="reel-store">Food Feed</p>
+                        <p className="reel-description">Videos failed to load. Please refresh the page.</p>
+                    </div>
+                </section>
+            </main>
+        );
+    }
+
     return (
         <main className="reels-feed" aria-label="Food reels feed">
-            {items.map((item, index) => (
+            {validItems.map((item, index) => (
                 <section key={item._id || item.id} className="reel-slide">
                     <video
                         ref={(el) => {
@@ -128,7 +152,12 @@ const ReelFeed = ({ items, onLike, emptyMessage }) => {
                         loop
                         playsInline
                         controls
-                        preload="metadata"
+                        crossOrigin="anonymous"
+                        onError={() => handleVideoError(index)}
+                        onCanPlay={(e) => {
+                            // Ensure video is visible when it can play
+                            if (e.target) e.target.style.visibility = 'visible';
+                        }}
                     />
 
                     <div className="reel-overlay">
