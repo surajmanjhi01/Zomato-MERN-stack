@@ -1,6 +1,8 @@
 //create server
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const swaggerUi = require('swagger-ui-express');
+const openapiDocument = require('./openapi.json');
 const authRoutes = require('./src/controllers/routes/auth.routes');
 const foodRoutes = require('./src/controllers/routes/food.routes');
 const foodPartnerRoutes = require('./src/controllers/routes/food-partner.routes');
@@ -31,6 +33,10 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/food', foodRoutes);
 app.use('/api/food-partner', foodPartnerRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
+app.get('/api-docs.json', (req, res) => {
+    res.json(openapiDocument);
+});
 app.get('/', (req, res) => {
      res.send("hello world");
 });

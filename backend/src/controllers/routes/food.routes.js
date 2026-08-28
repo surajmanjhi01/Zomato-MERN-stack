@@ -6,6 +6,7 @@ const multer=require('multer');
 const upload=multer({
     storage:multer.memoryStorage(),
 })
+
 // Add your food routes here{protected}
 router.post('/',
     authMiddleware.authFoodPartnerMiddleware,
@@ -25,5 +26,6 @@ router.delete(
     authMiddleware.authFoodPartnerMiddleware,
     foodController.deleteFoodItem
 );
+// Like or Unlike a post
 
 module.exports=router;
