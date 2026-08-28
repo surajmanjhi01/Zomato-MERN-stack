@@ -1,0 +1,1335 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Zomato MERN Stack API",
+    "description": "Complete API documentation for the Zomato-style food delivery app. This API provides user authentication, food partner management, food reel uploads, and like/unlike functionality.\n\n## Authentication\n\nAuthentication is handled via **JWT tokens** which are set as **HTTP-only cookies** after login/registration. The following cookies are used:\n- `user_token` - for regular users\n- `food_partner_token` - for food partners\n- `token` - legacy cookie (backward compatibility)\n\nAlternatively, you can pass the token via the `Authorization: Bearer <token>` header.\n\n## Base URL\n\n- Local: `http://localhost:4000`\n- The server runs on port `4000` by default (configurable via `PORT` env variable)",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Zomato MERN Stack",
+      "url": "https://github.com/surajmanjhi01/Zomato-MERN-stack"
+    },
+    "license": {
+      "name": "ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "User and Food Partner authentication endpoints"
+    },
+    {
+      "name": "Food",
+      "description": "Food reel management endpoints"
+    },
+    {
+      "name": "Food Partner",
+      "description": "Food partner profile and dashboard endpoints"
+    },
+    {
+      "name": "System",
+      "description": "System health and root endpoints"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Root endpoint",
+        "description": "Returns a simple hello world message to verify the server is running.",
+        "operationId": "getRoot",
+        "responses": {
+          "200": {
+            "description": "Server is running",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "hello world"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/user/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "description": "Creates a new user account. On success, sets a JWT token as an HTTP-only cookie (`user_token`) and returns the token in the response body.",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegistrationRequest"
+              },
+              "examples": {
+                "valid": {
+                  "value": {
+                    "fullName": "John Doe",
+                    "email": "john@example.com",
+                    "password": "securepassword123",
+                    "phoneNumber": "+919876543210"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error - missing fields or user already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingFields": {
+                    "value": {
+                      "message": "All fields are required"
+                    }
+                  },
+                  "alreadyExists": {
+                    "value": {
+                      "message": "user already exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Registration failed - server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/user/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login a user",
+        "description": "Authenticates a user with email and password. On success, sets a JWT token as an HTTP-only cookie (`user_token`) and returns the token in the response body.",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginRequest"
+              },
+              "examples": {
+                "valid": {
+                  "value": {
+                    "email": "john@example.com",
+                    "password": "securepassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "invalidCredentials": {
+                    "value": {
+                      "message": "invalid email or password"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/user/logout": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Logout a user",
+        "description": "Clears the user authentication cookies (`user_token` and legacy `token`).",
+        "operationId": "logoutUser",
+        "responses": {
+          "200": {
+            "description": "User logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/foodpartner/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new food partner",
+        "description": "Creates a new food partner (restaurant) account. On success, sets a JWT token as an HTTP-only cookie (`food_partner_token`) and returns the token in the response body.",
+        "operationId": "registerFoodPartner",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoodPartnerRegistrationRequest"
+              },
+              "examples": {
+                "valid": {
+                  "value": {
+                    "name": "Jane Smith",
+                    "email": "jane@restaurant.com",
+                    "password": "securepassword123",
+                    "RestaurantName": "Jane's Kitchen",
+                    "ContactNumber": "+919876543210"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Food partner registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodPartnerRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error - missing fields or food partner already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingFields": {
+                    "value": {
+                      "message": "All fields are required"
+                    }
+                  },
+                  "alreadyExists": {
+                    "value": {
+                      "message": "food partner already exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Registration failed - server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/foodpartner/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login a food partner",
+        "description": "Authenticates a food partner with email and password. On success, sets a JWT token as an HTTP-only cookie (`food_partner_token`) and returns the token in the response body.",
+        "operationId": "loginFoodPartner",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoodPartnerLoginRequest"
+              },
+              "examples": {
+                "valid": {
+                  "value": {
+                    "email": "jane@restaurant.com",
+                    "password": "securepassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Food partner logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodPartnerLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "invalidCredentials": {
+                    "value": {
+                      "message": "invalid email or password"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/foodpartner/logout": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Logout a food partner",
+        "description": "Clears the food partner authentication cookies (`food_partner_token` and legacy `token`).",
+        "operationId": "logoutFoodPartner",
+        "responses": {
+          "200": {
+            "description": "Food partner logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food": {
+      "post": {
+        "tags": ["Food"],
+        "summary": "Create a food reel",
+        "description": "Uploads a new food reel with a video file. Requires food partner authentication. The video is uploaded to ImageKit storage and the URL is stored in the database.",
+        "operationId": "createFood",
+        "security": [
+          {
+            "foodPartnerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFoodRequest"
+              },
+              "encoding": {
+                "video": {
+                  "contentType": "video/mp4"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Food reel uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateFoodResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Video file is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "noVideo": {
+                    "value": {
+                      "message": "Video file is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notLoggedIn": {
+                    "value": {
+                      "message": "Please login first"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Invalid token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to upload food reel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Food"],
+        "summary": "Get food items for current food partner",
+        "description": "Returns all food reels uploaded by the currently authenticated food partner, sorted by creation date (newest first).",
+        "operationId": "getFoodItems",
+        "security": [
+          {
+            "foodPartnerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Food items fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFoodItemsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food/all": {
+      "get": {
+        "tags": ["Food"],
+        "summary": "Get all food items (public)",
+        "description": "Returns all food reels from all food partners, populated with food partner details (name and restaurant name). Sorted by creation date (newest first). This endpoint is public and does not require authentication.",
+        "operationId": "getAllFoodItems",
+        "responses": {
+          "200": {
+            "description": "All food items fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllFoodItemsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error fetching food items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food/{id}": {
+      "delete": {
+        "tags": ["Food"],
+        "summary": "Delete a food reel",
+        "description": "Deletes a food reel. Only the food partner who created the reel can delete it. Requires food partner authentication.",
+        "operationId": "deleteFoodItem",
+        "security": [
+          {
+            "foodPartnerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the food reel to delete",
+            "schema": {
+              "type": "string",
+              "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Food reel deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteFoodResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot delete another partner's reel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notOwner": {
+                    "value": {
+                      "message": "You can only delete your own reels"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Food reel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notFound": {
+                    "value": {
+                      "message": "Food reel not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to delete food reel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food-partner/dashboard/me": {
+      "get": {
+        "tags": ["Food Partner"],
+        "summary": "Get food partner dashboard",
+        "description": "Returns the dashboard data for the currently authenticated food partner, including their profile, total reel count, and all their reels.",
+        "operationId": "getFoodPartnerDashboard",
+        "security": [
+          {
+            "foodPartnerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Food partner dashboard fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - not logged in or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "unauthorized": {
+                    "value": {
+                      "message": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Food partner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food-partner/{id}": {
+      "get": {
+        "tags": ["Food Partner"],
+        "summary": "Get food partner by ID",
+        "description": "Returns the profile of a food partner by their ID. The password field is excluded from the response. Requires food partner authentication.",
+        "operationId": "getFoodPartnerById",
+        "security": [
+          {
+            "foodPartnerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the food partner to retrieve",
+            "schema": {
+              "type": "string",
+              "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Food partner retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFoodPartnerResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Food partner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notFound": {
+                    "value": {
+                      "message": "Food partner not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food-partner/like/{postId}": {
+      "put": {
+        "tags": ["Food Partner"],
+        "summary": "Like or unlike a post",
+        "description": "Toggles the like status of a post. If the user has already liked the post, it will be unliked; otherwise, it will be liked. The user ID is provided in the request body.",
+        "operationId": "toggleLike",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the post to like/unlike",
+            "schema": {
+              "type": "string",
+              "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LikeRequest"
+              },
+              "examples": {
+                "valid": {
+                  "value": {
+                    "userId": "66c4a1b2c3d4e5f6a7b8c9d0"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post liked/unliked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notFound": {
+                    "value": {
+                      "message": "Post not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "foodPartnerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for food partner authentication. Can be provided via `Authorization: Bearer <token>` header or via the `food_partner_token` HTTP-only cookie."
+      },
+      "userAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for user authentication. Can be provided via `Authorization: Bearer <token>` header or via the `user_token` HTTP-only cookie."
+      }
+    },
+    "schemas": {
+      "UserRegistrationRequest": {
+        "type": "object",
+        "required": ["fullName", "email", "password", "phoneNumber"],
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address (must be unique)",
+            "example": "john@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "User's password (will be hashed with bcrypt)",
+            "example": "securepassword123"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "User's phone number",
+            "example": "+919876543210"
+          }
+        }
+      },
+      "UserLoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "john@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "User's password",
+            "example": "securepassword123"
+          }
+        }
+      },
+      "FoodPartnerRegistrationRequest": {
+        "type": "object",
+        "required": ["name", "email", "password", "RestaurantName", "ContactNumber"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the food partner (person)",
+            "example": "Jane Smith"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Food partner's email address (must be unique)",
+            "example": "jane@restaurant.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Food partner's password (will be hashed with bcrypt)",
+            "example": "securepassword123"
+          },
+          "RestaurantName": {
+            "type": "string",
+            "description": "Name of the restaurant",
+            "example": "Jane's Kitchen"
+          },
+          "ContactNumber": {
+            "type": "string",
+            "description": "Contact number of the restaurant",
+            "example": "+919876543210"
+          }
+        }
+      },
+      "FoodPartnerLoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Food partner's email address",
+            "example": "jane@restaurant.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Food partner's password",
+            "example": "securepassword123"
+          }
+        }
+      },
+      "UserRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "user registered successfully"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT token for authentication",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSummary"
+          }
+        }
+      },
+      "UserLoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "user logged in successfully"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT token for authentication",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSummary"
+          }
+        }
+      },
+      "UserSummary": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "User's unique ID",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          }
+        }
+      },
+      "FoodPartnerRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "food partner registered successfully"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT token for authentication",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "foodPartner": {
+            "$ref": "#/components/schemas/FoodPartnerSummary"
+          }
+        }
+      },
+      "FoodPartnerLoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "food partner logged in successfully"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT token for authentication",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "foodPartner": {
+            "$ref": "#/components/schemas/FoodPartnerSummary"
+          }
+        }
+      },
+      "FoodPartnerSummary": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Food partner's unique ID",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Jane Smith"
+          },
+          "email": {
+            "type": "string",
+            "example": "jane@restaurant.com"
+          }
+        }
+      },
+      "FoodPartner": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Food partner's unique ID",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Jane Smith"
+          },
+          "RestaurantName": {
+            "type": "string",
+            "example": "Jane's Kitchen"
+          },
+          "ContactNumber": {
+            "type": "string",
+            "example": "+919876543210"
+          },
+          "email": {
+            "type": "string",
+            "example": "jane@restaurant.com"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FoodItem": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Food reel's unique ID",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the food item",
+            "example": "Margherita Pizza"
+          },
+          "video": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the uploaded video (hosted on ImageKit)",
+            "example": "https://ik.imagekit.io/your-endpoint/abc123.mp4"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the food item",
+            "example": "Delicious wood-fired margherita pizza"
+          },
+          "foodpartner": {
+            "type": "string",
+            "description": "ID of the food partner who uploaded the reel",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FoodItemWithPartner": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Margherita Pizza"
+          },
+          "video": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://ik.imagekit.io/your-endpoint/abc123.mp4"
+          },
+          "description": {
+            "type": "string",
+            "example": "Delicious wood-fired margherita pizza"
+          },
+          "foodpartner": {
+            "$ref": "#/components/schemas/FoodPartnerPopulated"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FoodPartnerPopulated": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Jane Smith"
+          },
+          "RestaurantName": {
+            "type": "string",
+            "example": "Jane's Kitchen"
+          }
+        }
+      },
+      "CreateFoodRequest": {
+        "type": "object",
+        "required": ["name", "video"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the food item",
+            "example": "Margherita Pizza"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the food item",
+            "example": "Delicious wood-fired margherita pizza"
+          },
+          "video": {
+            "type": "string",
+            "format": "binary",
+            "description": "Video file to upload (MP4 format)"
+          }
+        }
+      },
+      "CreateFoodResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Food reel uploaded successfully"
+          },
+          "food": {
+            "$ref": "#/components/schemas/FoodItem"
+          }
+        }
+      },
+      "GetFoodItemsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Food items fetched successfully"
+          },
+          "foodItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoodItem"
+            }
+          }
+        }
+      },
+      "GetAllFoodItemsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "All food items fetched successfully"
+          },
+          "foodItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoodItemWithPartner"
+            }
+          }
+        }
+      },
+      "DeleteFoodResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Food reel deleted successfully"
+          },
+          "deletedId": {
+            "type": "string",
+            "description": "ID of the deleted food reel",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          }
+        }
+      },
+      "GetFoodPartnerResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Food partner retrieved successfully"
+          },
+          "foodPartner": {
+            "$ref": "#/components/schemas/FoodPartner"
+          }
+        }
+      },
+      "DashboardResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Food partner dashboard fetched successfully"
+          },
+          "dashboard": {
+            "type": "object",
+            "properties": {
+              "foodPartner": {
+                "$ref": "#/components/schemas/FoodPartner"
+              },
+              "stats": {
+                "type": "object",
+                "properties": {
+                  "totalReels": {
+                    "type": "integer",
+                    "description": "Total number of reels uploaded by this food partner",
+                    "example": 5
+                  }
+                }
+              },
+              "reels": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FoodItem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "LikeRequest": {
+        "type": "object",
+        "required": ["userId"],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "ID of the user liking/unliking the post",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          }
+        }
+      },
+      "PostResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+          },
+          "videoUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://ik.imagekit.io/your-endpoint/abc123.mp4"
+          },
+          "caption": {
+            "type": "string",
+            "example": "Delicious food!"
+          },
+          "likes": {
+            "type": "array",
+            "description": "Array of user IDs who liked the post",
+            "items": {
+              "type": "string",
+              "example": "66c4a1b2c3d4e5f6a7b8c9d0"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "user logged out successfully"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message describing what went wrong",
+            "example": "An error occurred"
+          },
+          "error": {
+            "type": "string",
+            "description": "Detailed error message (only present on server errors)",
+            "example": "Internal server error details"
+          }
+        }
+      }
+    }
+  }
+}
